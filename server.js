@@ -33,7 +33,7 @@ app.post("/generate", async (req, res) => {
   input: {
     prompt: prompt,
     aspect_ratio: "1:1",
-    output_format: "jpg",
+    output_format: "jpeg",
     output_quality: 95,
   },
 }),
