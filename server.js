@@ -23,21 +23,20 @@ app.post("/generate", async (req, res) => {
   try {
     const { prompt } = req.body;
 
-    const startRes = await fetch("https://api.replicate.com/v1/predictions", {
+    const startRes = await fetch("https://api.replicate.com/v1/models/bytedance/seedream-5-lite/predictions", {
       method: "POST",
       headers: {
         Authorization: `Token ${API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: "bytedance/seedream-5-lite",
-        input: {
-          prompt: prompt,
-          aspect_ratio: "1:1",
-          output_format: "jpg",
-          output_quality: 95,
-        },
-      }),
+     body: JSON.stringify({
+  input: {
+    prompt: prompt,
+    aspect_ratio: "1:1",
+    output_format: "jpg",
+    output_quality: 95,
+  },
+}),
     });
 
     const startData = await startRes.json();
