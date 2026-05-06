@@ -37,6 +37,16 @@ app.post("/generate", async (req, res) => {
           width: 1024,
           height: 1024,
           num_outputs: 1,
+            
+        input: {
+  prompt: prompt,
+  negative_prompt:
+    "deformed hands, bad anatomy, extra fingers, missing fingers, distorted fingers, ugly hands, plastic skin, blurry, low quality, cartoon, mismatched colors, clashing colors",
+  width: 1024,
+  height: 1024,
+  num_outputs: 1,
+},
+            
         },
       }),
     });
@@ -67,8 +77,13 @@ app.post("/generate", async (req, res) => {
     }
 
     if (result.status !== "succeeded") {
-      return res.status(500).json({ error: "Generation failed" });
-    }
+  console.log("GENERATION ERROR:", result.error);
+
+  return res.status(500).json({
+    error: "Generation failed",
+    details: result.error,
+  });
+}
 
     const imageUrl = Array.isArray(result.output)
       ? result.output[0]
