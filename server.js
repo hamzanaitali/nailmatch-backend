@@ -23,7 +23,6 @@ app.post("/generate", async (req, res) => {
   try {
     const { prompt } = req.body;
 
-    // 1️⃣ start replicate
     const startRes = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
@@ -31,38 +30,32 @@ app.post("/generate", async (req, res) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        version: VERSION,
+        model: "bytedance/seedream-5-lite",
         input: {
           prompt: prompt,
-          width: 1024,
-          height: 1024,
-          num_outputs: 1,
-            
-        input: {
-  prompt: prompt,
- negative_prompt:
-  "nsfw, nude, sexual, deformed hands, bad anatomy, extra fingers, missing fingers, fused fingers, long fingers, broken fingers, twisted fingers, duplicated hands, multiple hands, distorted fingers, ugly hands, unrealistic hand, plastic skin, blurry, low quality, cartoon, watermark, text, logo, jewelry, rings",
-  width: 1024,
-  height: 1024,
-  num_outputs: 1,
-},
-            
+          aspect_ratio: "1:1",
+          output_format: "jpg",
+          output_quality: 95,
         },
       }),
     });
 
     const startData = await startRes.json();
+    console.log("START DATA:", startData);
 
     if (!startData.urls?.get) {
-      return res.status(500).json({ error: "No polling URL" });
+      return res.status(500).json({
+        error: "No polling URL",
+        details: startData,
+      });
     }
 
     let result = startData;
 
-    // 2️⃣ polling
     while (
       result.status !== "succeeded" &&
-      result.status !== "failed"
+      result.status !== "failed" &&
+      result.status !== "canceled"
     ) {
       await new Promise((r) => setTimeout(r, 2000));
 
@@ -77,13 +70,13 @@ app.post("/generate", async (req, res) => {
     }
 
     if (result.status !== "succeeded") {
-  console.log("GENERATION ERROR:", result.error);
+      console.log("GENERATION ERROR:", result.error);
 
-  return res.status(500).json({
-    error: "Generation failed",
-    details: result.error,
-  });
-}
+      return res.status(500).json({
+        error: "Generation failed",
+        details: result.error,
+      });
+    }
 
     const imageUrl = Array.isArray(result.output)
       ? result.output[0]
@@ -91,16 +84,13 @@ app.post("/generate", async (req, res) => {
 
     console.log("TEMP IMAGE:", imageUrl);
 
-    // 3️⃣ upload to cloudinary
     const uploadRes = await cloudinary.uploader.upload(imageUrl);
 
     console.log("CLOUDINARY:", uploadRes.secure_url);
 
-    // 4️⃣ return permanent URL
     return res.json({
       image: uploadRes.secure_url,
     });
-
   } catch (e) {
     console.log(e);
     return res.status(500).json({ error: e.message });
