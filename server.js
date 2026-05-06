@@ -41,7 +41,7 @@ app.post("/generate", async (req, res) => {
         input: {
   prompt: prompt,
   negative_prompt:
-    "deformed hands, bad anatomy, extra fingers, missing fingers, distorted fingers, ugly hands, plastic skin, blurry, low quality, cartoon, mismatched colors, clashing colors",
+  "nsfw, nude, sexual, deformed hands, bad anatomy, extra fingers, missing fingers, blurry, low quality, cartoon, distorted fingers, ugly nails, watermark, text, logo",
   width: 1024,
   height: 1024,
   num_outputs: 1,
